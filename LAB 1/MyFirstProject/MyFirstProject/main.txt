@@ -24,10 +24,6 @@ void delaynms(int n) // delay millisecond
 
 /* ################## MAIN ROUTINE ################## */
 int main(int argc, char *argv[]){
-	//Testing for Milestone 1:
-	DDRL = 0b11111111; // Sets all pins on PORTL to output
-	PORTL = 0b00110001;
-	
 	// created while loop to repeat the night rider pattern
 	while(1==1){
 	DDRC = 0b11111111; // sets all pins on PORTC to output
