@@ -1,9 +1,15 @@
-/*
- * NightRiderLab2.c
- *
- * Created: 1/29/2024 1:06:53 PM
- * Author : kiara
- */ 
+/* ###################################################################
+# MILESTONE: 2
+# PROGRAM: 2
+# PROJECT: Night Rider Lab 2
+# GROUP: 1
+# NAME 1: Berezowska, Kiara, V00937549
+# NAME 2: Mckinlay, Samantha, V00954147
+# NAME 3: Bishop, Justin, V00940893
+# DESC: This program toggles LED lights on and off to achieve the night rider blinking pattern. The program uses
+mTimer and bit shifting.
+# DATA
+# REVISED ############################################################### */
 
 #include <stdlib.h> // the header of the general-purpose standard library of C programming language
 #include<avr/io.h> // the header of I/O port
