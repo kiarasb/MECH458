@@ -87,7 +87,7 @@ int main(int argc,char*argv[])
 	//Some more text
 
 	LCDWriteString("Hello world");
-	LCDWriteStringXY(0,1,"By Pat");		// <--- Write ur NAME HERE !!!!!!!!!!!
+	LCDWriteStringXY(0,1,"By Kiara, Sam, and Justin");		// <--- Write ur NAME HERE !!!!!!!!!!!
 
 	//Wait ~ 25 secs
 	//for(i=0;i<100;i++) _delay_loop_2(0);
