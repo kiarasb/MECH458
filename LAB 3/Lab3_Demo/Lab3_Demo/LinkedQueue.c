@@ -7,28 +7,27 @@
 	Name 1:	Mckinlay, Samantha	            Student ID: V00954147
 	Name 2:	Berezowska, Kiara				Student ID: V00937549
 	
-	Description: You can change the following after you read it.  Lab3 Demo
-	
-	This main routine will only serve as a testing routine for now. At some point you can comment out
-	The main routine, and can use the following library of functions in your other applications
-
-	To do this...make sure both the .C file and the .H file are in the same directory as the .C file
-	with the MAIN routine (this will make it more convenient)
+	Description: Use mTimer, Linked Lists, User Input, and button to display items in list shifted two bits each time.
 */
 
 /* include libraries */
 #include <stdlib.h>
 #include <avr/io.h>
 #include "LinkedQueue.h" 	/* This is the attached header file, which cleans things up */
-							/* Make sure you read it!!! */
+
 /* global variables */
 /* Avoid using these */
 
-/* main routine 
-   You need to add the mtimer function to this project.    */
 void mTimer(int count);
+int debug(char input);
 
-int main(){	
+int main(int argc, char *argv[]){	
+	CLKPR = 0x80;
+	CLKPR = 0x01;
+	
+	TCCR1B = _BV(CS11);
+	
+	char readInput;
 
 	link *head;			/* The ptr to the head of the queue */
 	link *tail;			/* The ptr to the tail of the queue */
@@ -38,80 +37,38 @@ int main(){
 
 	DDRC = 0xFF; 		/* Used for debugging purposes only LEDs on PORTC */
 	//DDRD = 0xFF;
-				
-
-	rtnLink = NULL;
-	newLink = NULL;
-
-	setup(&head, &tail);
-
-	/* 
-		Many of the following lines will test to see if your algorithms will work. You do not necessarily
-		need the MCU attached to the computer to test this, and can do most of the work using the 
-		debugger in the AVR studio while observing the I/O View in the top right corner. Click the tab
-		or PORTC to see how the output changes while 'stepping' through the routines.
-	*/
-	/* Initialize a new link here */
-	initLink(&newLink);
-	newLink->e.itemCode = 3;
-	newLink->e.stage = 4;
-	enqueue(&head, &tail, &newLink);
-	PORTC = head->e.itemCode;	//  You need to insert mTimer in between each output in order to see the values.
-	mTimer(2000); // not sure if this is where the mTimer is needed?
-	PORTC = tail->e.stage;		//  Or the LEDs will just flash by very quickly.  You will need about 2 seconds delay.
-	mTimer(2000); // not sure if this is where the mTimer is needed?
+	DDRA = 0x00; // sets port A to input
+	DDRC = 0xFF; //sets port C to output bits for red LEDs
 	
-	initLink(&newLink);
-	newLink->e.itemCode = 5;
-	newLink->e.stage = 6;
-	enqueue(&head, &tail, &newLink);
-	PORTC = head->e.itemCode;
-	mTimer(2000); 
-	PORTC = tail->e.stage;
-	mTimer(2000);
-	
-	initLink(&newLink);
-	newLink->e.itemCode = 7;
-	newLink->e.stage = 8;
-	enqueue(&head, &tail, &newLink);
-	PORTC = head->e.itemCode;
-	mTimer(2000);
-	PORTC = tail->e.stage;
-	mTimer(2000);
-
-	PORTC = 0x00;
-
-	/* Tests to see if firstValue works */
-	eTest = firstValue(&head);
-	PORTC = eTest.itemCode;
-	PORTC = 0x00;
-
-	/* Tests if Size works */
-	PORTC = size(&head, &tail);
-
-	/* Tests if dequeue works - Uncomment to use
-	Also, insert mTimer between each output in order to see the values.   */
-	
-	//dequeue(&head, &rtnLink); /* remove the item at the head of the list */
-	//PORTC = rtnLink->e.itemCode;
-	//mTimer(2000);
-	//dequeue(&head, &rtnLink); /* remove the item at the head of the list */
-	//PORTC = rtnLink->e.itemCode;
-	//mTimer(2000);
-	//dequeue(&head, &rtnLink); /* remove the item at the head of the list */
-	//PORTC = rtnLink->e.itemCode;
-	//mTimer(2000);
-	
-	/* Tests is empty */
-	PORTC = isEmpty(&head);
-
-	/* Tests to see if clearQueue works*/
-	clearQueue(&head, &tail);
-	PORTC = size(&head, &tail);
-
-	PORTC = isEmpty(&head);
-
-
+	while(1){
+		rtnLink = NULL;
+		newLink = NULL;
+		setup(&head, &tail);
+		for(int i = 0; i<3; i++){
+			//check button
+			while((PINA&0x04)==0x04); //checking if button is HIGH ie pushed
+			mTimer(20); //debounce
+			initLink(&newLink);
+			newLink->e.itemCode = (PINA&0x03);
+			enqueue(&head, &tail, &newLink);
+			//check button
+			while((PINA&0x04)==0x00); //checking if button is LOW ie not pushed
+			mTimer(20); //debounce
+		}
+		int i = 0;
+		while(isEmpty(&head)!=1){
+			dequeue(&head, &rtnLink); //remove the item at the head of the list 
+			PORTC = rtnLink->e.itemCode<<i;
+			mTimer(2000);
+			i= i+2;
+		}
+		
+		while((PINA&0x04)==0x04);
+		mTimer(20); //debounce
+		PORTC = 0;
+		while((PINA&0x04)==0x00); //checking if button is LOW ie not pushed
+		mTimer(20); //debounce
+	}
 	return(0);
 }/* main */
 
@@ -119,11 +76,6 @@ int main(){
 /**************************************************************************************/
 /***************************** SUBROUTINES ********************************************/
 /**************************************************************************************/
-
-
-
-
-
 
 
 /**************************************************************************************
@@ -277,6 +229,11 @@ int size(link **h, link **t){
 	return(numElements);
 }/*size*/
 
+/**************************************************************************************
+* DESC: Acts as a clock.
+* INPUT: Amount of time that has to be counted.
+* RETURNS: Nothing
+*/
 void mTimer (int count){
    /***
       Setup Timer1 as a ms timer
@@ -315,4 +272,5 @@ void mTimer (int count){
 	 } 
    return;
 }  /* mTimer */
+
 
