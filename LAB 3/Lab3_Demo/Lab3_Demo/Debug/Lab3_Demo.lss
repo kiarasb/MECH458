@@ -13,21 +13,21 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000005d0  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000070  00000000  00000000  00000610  2**0
+  5 .debug_aranges 00000068  00000000  00000000  00000610  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00001124  00000000  00000000  00000680  2**0
+  6 .debug_info   000010f3  00000000  00000000  00000678  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000d9d  00000000  00000000  000017a4  2**0
+  7 .debug_abbrev 00000d3a  00000000  00000000  0000176b  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   0000056d  00000000  00000000  00002541  2**0
+  8 .debug_line   0000051a  00000000  00000000  000024a5  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000000f4  00000000  00000000  00002ab0  2**2
+  9 .debug_frame  000000e4  00000000  00000000  000029c0  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000617  00000000  00000000  00002ba4  2**0
+ 10 .debug_str    0000060b  00000000  00000000  00002aa4  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    0000039f  00000000  00000000  000031bb  2**0
+ 11 .debug_loc    0000039f  00000000  00000000  000030af  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000060  00000000  00000000  0000355a  2**0
+ 12 .debug_ranges 00000058  00000000  00000000  0000344e  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -266,7 +266,11 @@ Disassembly of section .text:
  19c:	08 95       	ret
 
 0000019e <mTimer>:
-
+/**************************************************************************************
+* DESC: Acts as a clock.
+* INPUT: Amount of time that has to be counted.
+* RETURNS: Nothing
+*/
 void mTimer (int count){
  19e:	ac 01       	movw	r20, r24
    i = 0;
@@ -345,8 +349,8 @@ void mTimer (int count){
  1e6:	08 95       	ret
 
 000001e8 <main>:
-/* main routine 
-   You need to add the mtimer function to this project.    */
+/* Avoid using these */
+
 void mTimer(int count);
 int debug(char input);
 
@@ -475,6 +479,7 @@ void setup(link **h,link **t){
  278:	ce 01       	movw	r24, r28
  27a:	01 96       	adiw	r24, 0x01	; 1
  27c:	7f df       	rcall	.-258    	; 0x17c <dequeue>
+			//PORTC = rtnLink->e.itemCode<<0;
 			PORTC = rtnLink->e.itemCode<<i;
  27e:	ef 81       	ldd	r30, Y+7	; 0x07
  280:	f8 85       	ldd	r31, Y+8	; 0x08
@@ -503,10 +508,10 @@ void setup(link **h,link **t){
  29e:	89 81       	ldd	r24, Y+1	; 0x01
  2a0:	9a 81       	ldd	r25, Y+2	; 0x02
  2a2:	89 2b       	or	r24, r25
-		mTimer(2000);
-		dequeue(&head, &rtnLink); //remove the item at the head of the list
-		PORTC = rtnLink->e.itemCode<<4;
-		mTimer(2000);*/
+			PORTC = rtnLink->e.itemCode<<i;
+			mTimer(2000);
+			i= i+2;
+		}
 		
 		while((PINA&0x04)==0x04);
  2a4:	31 f7       	brne	.-52     	; 0x272 <main+0x8a>
