@@ -55,14 +55,7 @@ int main(int argc, char *argv[]){
 			while((PINA&0x04)==0x00); //checking if button is LOW ie not pushed
 			mTimer(20); //debounce
 		}
-		int i = 0;
-		while(isEmpty(&head)!=1){
-			dequeue(&head, &rtnLink); //remove the item at the head of the list 
-			PORTC = rtnLink->e.itemCode<<i;
-			mTimer(2000);
-			i= i+2;
-		}
-		/*
+			
 		int i = 0;
 		while(isEmpty(&head)!=1){
 			dequeue(&head, &rtnLink); //remove the item at the head of the list
@@ -70,7 +63,7 @@ int main(int argc, char *argv[]){
 			mTimer(2000);
 			i= i+2;
 		}
-		*/
+		
 		while((PINA&0x04)==0x04);
 		mTimer(20); //debounce
 		PORTC = 0;
