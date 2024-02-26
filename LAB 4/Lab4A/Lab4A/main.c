@@ -1,9 +1,13 @@
-/*
- * Lab4A.c
- *
- * Created: 2/12/2024 12:29:16 PM
- * Author : kiara
- */ 
+/* 	
+	Course		: UVic Mechatronics 458
+	Milestone	: 4A
+	Title		: INTERFACING
+
+	Name 1:	Mckinlay, Samantha	            Student ID: V00954147
+	Name 2:	Berezowska, Kiara				Student ID: V00937549
+	
+	Description: Interface with simple DC stepper motor, setting up CW and CCW rotation. Implemented PWM funtion.
+*/
 
 #include <stdlib.h>
 #include <avr/io.h>
@@ -19,6 +23,7 @@ int Table[4] = {0b00110000, 0b00000110, 0b00101000, 0b00000101};
 void mTimer(int count);
 void CW (int NumSteps);
 void CCW (int NumSteps);
+void PWM();
 
 int main(void){
 	CLKPR = 0x80;
@@ -26,7 +31,11 @@ int main(void){
 	
 	TCCR1B = _BV(CS11);
 	DDRA = 0x00; //sets PORTA to input
-	CurrentPosition = 0;
+	
+	CurrentPosition = 0; //initializes position
+	
+	PWM();//calls PMW
+	
     while (1) 
     {
 		//initialize current position using 90 deg
@@ -79,42 +88,6 @@ void CCW (int NumSteps){
 	
 }
 
-/*void CW (int NumSteps){
-	int i =0;
-	while(i<NumSteps){
-		//if(CurrentPosition ==1){
-			CurrentPosition = CurrentPosition +1;
-			PORTA = 0bx00110000 //step 1
-			mTimer(20);
-			i++;
-			continue;
-		//}
-		if(CurrentPosition ==2){
-			CurrentPosition = CurrentPosition +1;
-			PORTA = 0bx00000110 //step 2
-			mTimer(20);
-			i++;
-			continue;
-		}
-		if(CurrentPosition ==3){
-			CurrentPosition = CurrentPosition +1;
-			PORTA = 0bx00101000 //step 3
-			mTimer(20);
-			i++;
-			continue;
-		}
-		if(CurrentPosition ==4){
-			CurrentPosition = 1;
-			PORTA = 0bx00101000 //step 3
-			mTimer(20);
-			i++;
-			continue;
-		}
-	}
-	
-	
-}*/
-
 /**************************************************************************************
 * DESC: Acts as a clock.
 * INPUT: Amount of time that has to be counted.
@@ -158,5 +131,15 @@ void mTimer (int count){
 	 } 
    return;
 }  /* mTimer */
+
+//one line of code for each step (no more than 7)
+void PWM(){
+	TCCR0A |= _BV(WGM01)|_BV(WGM00); //selecting Fast PWN mode 3
+	TIMSK0 |= _BV(OCIE0A); //enable output compare interrupt for timer0
+	TCCR0A |= _BV(COM0A1);//set compare match output mode to clear and set output compare A when timer reaches TOP
+	TCCR0B |= _BV(CS01);//sets prescale factor to 8
+	OCR0A = 0x80;//set  output compare register A to TOP
+	DDRB = 0b11111111; //set all PORTB to output
+}
 
 

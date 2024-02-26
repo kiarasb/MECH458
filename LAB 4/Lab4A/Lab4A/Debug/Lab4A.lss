@@ -3,31 +3,31 @@ Lab4A.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000008  00800200  000002b0  00000344  2**0
+  0 .data         00000008  00800200  000002d8  0000036c  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000002b0  00000000  00000000  00000094  2**1
+  1 .text         000002d8  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000002  00800208  00800208  0000034c  2**0
+  2 .bss          00000002  00800208  00800208  00000374  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  0000034c  2**0
+  3 .comment      00000030  00000000  00000000  00000374  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  0000037c  2**2
+  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000003a4  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000038  00000000  00000000  000003bc  2**0
+  5 .debug_aranges 00000040  00000000  00000000  000003e4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000ec2  00000000  00000000  000003f4  2**0
+  6 .debug_info   00000ee0  00000000  00000000  00000424  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000c21  00000000  00000000  000012b6  2**0
+  7 .debug_abbrev 00000c42  00000000  00000000  00001304  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000431  00000000  00000000  00001ed7  2**0
+  8 .debug_line   0000046c  00000000  00000000  00001f46  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  0000007c  00000000  00000000  00002308  2**2
+  9 .debug_frame  0000008c  00000000  00000000  000023b4  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000563  00000000  00000000  00002384  2**0
+ 10 .debug_str    00000563  00000000  00000000  00002440  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    0000016a  00000000  00000000  000028e7  2**0
+ 11 .debug_loc    0000016a  00000000  00000000  000029a3  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000028  00000000  00000000  00002a51  2**0
+ 12 .debug_ranges 00000030  00000000  00000000  00002b0d  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -162,7 +162,7 @@ Disassembly of section .text:
   f4:	12 e0       	ldi	r17, 0x02	; 2
   f6:	a0 e0       	ldi	r26, 0x00	; 0
   f8:	b2 e0       	ldi	r27, 0x02	; 2
-  fa:	e0 eb       	ldi	r30, 0xB0	; 176
+  fa:	e8 ed       	ldi	r30, 0xD8	; 216
   fc:	f2 e0       	ldi	r31, 0x02	; 2
   fe:	00 e0       	ldi	r16, 0x00	; 0
  100:	0b bf       	out	0x3b, r16	; 59
@@ -186,8 +186,8 @@ Disassembly of section .text:
  118:	aa 30       	cpi	r26, 0x0A	; 10
  11a:	b2 07       	cpc	r27, r18
  11c:	e1 f7       	brne	.-8      	; 0x116 <.do_clear_bss_loop>
- 11e:	8d d0       	rcall	.+282    	; 0x23a <main>
- 120:	c5 c0       	rjmp	.+394    	; 0x2ac <_exit>
+ 11e:	a0 d0       	rcall	.+320    	; 0x260 <main>
+ 120:	d9 c0       	rjmp	.+434    	; 0x2d4 <_exit>
 
 00000122 <__bad_interrupt>:
  122:	6e cf       	rjmp	.-292    	; 0x0 <__vectors>
@@ -410,96 +410,133 @@ void CCW (int NumSteps){
  236:	0f 91       	pop	r16
  238:	08 95       	ret
 
-0000023a <main>:
-void mTimer(int count);
+0000023a <PWM>:
+   return;
+}  /* mTimer */
+
+//one line of code for each step (no more than 7)
+void PWM(){
+	TCCR0A |= _BV(WGM01)|_BV(WGM00); //selecting Fast PWN mode 3
+ 23a:	84 b5       	in	r24, 0x24	; 36
+ 23c:	83 60       	ori	r24, 0x03	; 3
+ 23e:	84 bd       	out	0x24, r24	; 36
+	TIMSK0 |= _BV(OCIE0A); //enable output compare interrupt for timer0
+ 240:	ee e6       	ldi	r30, 0x6E	; 110
+ 242:	f0 e0       	ldi	r31, 0x00	; 0
+ 244:	80 81       	ld	r24, Z
+ 246:	82 60       	ori	r24, 0x02	; 2
+ 248:	80 83       	st	Z, r24
+	TCCR0A |= _BV(COM0A1);//set compare match output mode to clear and set output compare A when timer reaches TOP
+ 24a:	84 b5       	in	r24, 0x24	; 36
+ 24c:	80 68       	ori	r24, 0x80	; 128
+ 24e:	84 bd       	out	0x24, r24	; 36
+	TCCR0B |= _BV(CS01);//sets prescale factor to 8
+ 250:	85 b5       	in	r24, 0x25	; 37
+ 252:	82 60       	ori	r24, 0x02	; 2
+ 254:	85 bd       	out	0x25, r24	; 37
+	OCR0A = 0x80;//set  output compare register A to TOP
+ 256:	80 e8       	ldi	r24, 0x80	; 128
+ 258:	87 bd       	out	0x27, r24	; 39
+	DDRB = 0b11111111; //set all PORTB to output
+ 25a:	8f ef       	ldi	r24, 0xFF	; 255
+ 25c:	84 b9       	out	0x04, r24	; 4
+ 25e:	08 95       	ret
+
+00000260 <main>:
 void CW (int NumSteps);
 void CCW (int NumSteps);
+void PWM();
 
 int main(void){
 	CLKPR = 0x80;
- 23a:	e1 e6       	ldi	r30, 0x61	; 97
- 23c:	f0 e0       	ldi	r31, 0x00	; 0
- 23e:	80 e8       	ldi	r24, 0x80	; 128
- 240:	80 83       	st	Z, r24
+ 260:	e1 e6       	ldi	r30, 0x61	; 97
+ 262:	f0 e0       	ldi	r31, 0x00	; 0
+ 264:	80 e8       	ldi	r24, 0x80	; 128
+ 266:	80 83       	st	Z, r24
 	CLKPR = 0x01;
- 242:	81 e0       	ldi	r24, 0x01	; 1
- 244:	80 83       	st	Z, r24
+ 268:	81 e0       	ldi	r24, 0x01	; 1
+ 26a:	80 83       	st	Z, r24
 	
 	TCCR1B = _BV(CS11);
- 246:	82 e0       	ldi	r24, 0x02	; 2
- 248:	80 93 81 00 	sts	0x0081, r24	; 0x800081 <__TEXT_REGION_LENGTH__+0x7c0081>
+ 26c:	82 e0       	ldi	r24, 0x02	; 2
+ 26e:	80 93 81 00 	sts	0x0081, r24	; 0x800081 <__TEXT_REGION_LENGTH__+0x7c0081>
 	DDRA = 0x00; //sets PORTA to input
- 24c:	11 b8       	out	0x01, r1	; 1
-	CurrentPosition = 0;
- 24e:	10 92 09 02 	sts	0x0209, r1	; 0x800209 <__data_end+0x1>
- 252:	10 92 08 02 	sts	0x0208, r1	; 0x800208 <__data_end>
+ 272:	11 b8       	out	0x01, r1	; 1
+	
+	CurrentPosition = 0; //initializes position
+ 274:	10 92 09 02 	sts	0x0209, r1	; 0x800209 <__data_end+0x1>
+ 278:	10 92 08 02 	sts	0x0208, r1	; 0x800208 <__data_end>
+	
+	PWM();//calls PMW
+ 27c:	de df       	rcall	.-68     	; 0x23a <PWM>
+	
     while (1) 
     {
 		//initialize current position using 90 deg
 		CW(60);
- 256:	8c e3       	ldi	r24, 0x3C	; 60
- 258:	90 e0       	ldi	r25, 0x00	; 0
- 25a:	89 df       	rcall	.-238    	; 0x16e <CW>
+ 27e:	8c e3       	ldi	r24, 0x3C	; 60
+ 280:	90 e0       	ldi	r25, 0x00	; 0
+ 282:	75 df       	rcall	.-278    	; 0x16e <CW>
 		mTimer(2000);
- 25c:	80 ed       	ldi	r24, 0xD0	; 208
- 25e:	97 e0       	ldi	r25, 0x07	; 7
- 260:	61 df       	rcall	.-318    	; 0x124 <mTimer>
+ 284:	80 ed       	ldi	r24, 0xD0	; 208
+ 286:	97 e0       	ldi	r25, 0x07	; 7
+ 288:	4d df       	rcall	.-358    	; 0x124 <mTimer>
 		
 		//CW check
 		CW(17);
- 262:	81 e1       	ldi	r24, 0x11	; 17
- 264:	90 e0       	ldi	r25, 0x00	; 0
- 266:	83 df       	rcall	.-250    	; 0x16e <CW>
+ 28a:	81 e1       	ldi	r24, 0x11	; 17
+ 28c:	90 e0       	ldi	r25, 0x00	; 0
+ 28e:	6f df       	rcall	.-290    	; 0x16e <CW>
 		mTimer(2000);
- 268:	80 ed       	ldi	r24, 0xD0	; 208
- 26a:	97 e0       	ldi	r25, 0x07	; 7
- 26c:	5b df       	rcall	.-330    	; 0x124 <mTimer>
+ 290:	80 ed       	ldi	r24, 0xD0	; 208
+ 292:	97 e0       	ldi	r25, 0x07	; 7
+ 294:	47 df       	rcall	.-370    	; 0x124 <mTimer>
 		CW(33);
- 26e:	81 e2       	ldi	r24, 0x21	; 33
- 270:	90 e0       	ldi	r25, 0x00	; 0
- 272:	7d df       	rcall	.-262    	; 0x16e <CW>
+ 296:	81 e2       	ldi	r24, 0x21	; 33
+ 298:	90 e0       	ldi	r25, 0x00	; 0
+ 29a:	69 df       	rcall	.-302    	; 0x16e <CW>
 		mTimer(2000);
- 274:	80 ed       	ldi	r24, 0xD0	; 208
- 276:	97 e0       	ldi	r25, 0x07	; 7
- 278:	55 df       	rcall	.-342    	; 0x124 <mTimer>
+ 29c:	80 ed       	ldi	r24, 0xD0	; 208
+ 29e:	97 e0       	ldi	r25, 0x07	; 7
+ 2a0:	41 df       	rcall	.-382    	; 0x124 <mTimer>
 		CW(100);
- 27a:	84 e6       	ldi	r24, 0x64	; 100
- 27c:	90 e0       	ldi	r25, 0x00	; 0
- 27e:	77 df       	rcall	.-274    	; 0x16e <CW>
+ 2a2:	84 e6       	ldi	r24, 0x64	; 100
+ 2a4:	90 e0       	ldi	r25, 0x00	; 0
+ 2a6:	63 df       	rcall	.-314    	; 0x16e <CW>
 		mTimer(2000);
- 280:	80 ed       	ldi	r24, 0xD0	; 208
- 282:	97 e0       	ldi	r25, 0x07	; 7
- 284:	4f df       	rcall	.-354    	; 0x124 <mTimer>
+ 2a8:	80 ed       	ldi	r24, 0xD0	; 208
+ 2aa:	97 e0       	ldi	r25, 0x07	; 7
+ 2ac:	3b df       	rcall	.-394    	; 0x124 <mTimer>
 		
 		//CCW check
 		CCW(17);
- 286:	81 e1       	ldi	r24, 0x11	; 17
- 288:	90 e0       	ldi	r25, 0x00	; 0
- 28a:	a3 df       	rcall	.-186    	; 0x1d2 <CCW>
+ 2ae:	81 e1       	ldi	r24, 0x11	; 17
+ 2b0:	90 e0       	ldi	r25, 0x00	; 0
+ 2b2:	8f df       	rcall	.-226    	; 0x1d2 <CCW>
 		mTimer(2000);
- 28c:	80 ed       	ldi	r24, 0xD0	; 208
- 28e:	97 e0       	ldi	r25, 0x07	; 7
- 290:	49 df       	rcall	.-366    	; 0x124 <mTimer>
+ 2b4:	80 ed       	ldi	r24, 0xD0	; 208
+ 2b6:	97 e0       	ldi	r25, 0x07	; 7
+ 2b8:	35 df       	rcall	.-406    	; 0x124 <mTimer>
 		CCW(33);
- 292:	81 e2       	ldi	r24, 0x21	; 33
- 294:	90 e0       	ldi	r25, 0x00	; 0
- 296:	9d df       	rcall	.-198    	; 0x1d2 <CCW>
+ 2ba:	81 e2       	ldi	r24, 0x21	; 33
+ 2bc:	90 e0       	ldi	r25, 0x00	; 0
+ 2be:	89 df       	rcall	.-238    	; 0x1d2 <CCW>
 		mTimer(2000);
- 298:	80 ed       	ldi	r24, 0xD0	; 208
- 29a:	97 e0       	ldi	r25, 0x07	; 7
- 29c:	43 df       	rcall	.-378    	; 0x124 <mTimer>
- 29e:	84 e6       	ldi	r24, 0x64	; 100
+ 2c0:	80 ed       	ldi	r24, 0xD0	; 208
+ 2c2:	97 e0       	ldi	r25, 0x07	; 7
+ 2c4:	2f df       	rcall	.-418    	; 0x124 <mTimer>
+ 2c6:	84 e6       	ldi	r24, 0x64	; 100
 		CCW(100);
- 2a0:	90 e0       	ldi	r25, 0x00	; 0
- 2a2:	97 df       	rcall	.-210    	; 0x1d2 <CCW>
- 2a4:	80 ed       	ldi	r24, 0xD0	; 208
- 2a6:	97 e0       	ldi	r25, 0x07	; 7
+ 2c8:	90 e0       	ldi	r25, 0x00	; 0
+ 2ca:	83 df       	rcall	.-250    	; 0x1d2 <CCW>
+ 2cc:	80 ed       	ldi	r24, 0xD0	; 208
+ 2ce:	97 e0       	ldi	r25, 0x07	; 7
 		mTimer(2000);
- 2a8:	3d df       	rcall	.-390    	; 0x124 <mTimer>
- 2aa:	d5 cf       	rjmp	.-86     	; 0x256 <main+0x1c>
+ 2d0:	29 df       	rcall	.-430    	; 0x124 <mTimer>
+ 2d2:	d5 cf       	rjmp	.-86     	; 0x27e <main+0x1e>
 
-000002ac <_exit>:
- 2ac:	f8 94       	cli
+000002d4 <_exit>:
+ 2d4:	f8 94       	cli
 
-000002ae <__stop_program>:
- 2ae:	ff cf       	rjmp	.-2      	; 0x2ae <__stop_program>
+000002d6 <__stop_program>:
+ 2d6:	ff cf       	rjmp	.-2      	; 0x2d6 <__stop_program>
