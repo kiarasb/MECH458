@@ -10,50 +10,50 @@
 
 #include "lcd.h"
 
-void mTimer (int count)
+/*void mTimer (int count)
 {
    /***
       Setup Timer1 as a ms timer
 	  Using polling method not Interrupt Driven
    ***/
 	  
-   int i;
+  /* int i;
 
    i = 0;
 
    TCCR1B |= _BV (CS11);  // Set prescaler (/8) clock 16MHz/8 -> 2MHz
    /* Set the Waveform gen. mode bit description to clear
      on compare mode only */
-   TCCR1B |= _BV(WGM12);
+   /*TCCR1B |= _BV(WGM12);
 
    /* Set output compare register for 2000 cycles, 1ms */
-   OCR1A = 0x07D0;
+   /*OCR1A = 0x07D0;
  
    /* Initialize Timer1 to zero */
-   TCNT1 = 0x0000;
+   //TCNT1 = 0x0000;
 
    /* Enable the output compare interrupt */
    //TIMSK1 |= _BV(OCIE1A);  //remove if global interrups is set (sei())
 
    /* Clear the Timer1 interrupt flag and begin timing */
-   TIFR1 |= _BV(OCF1A);
+   //TIFR1 |= _BV(OCF1A);
 
    /* Poll the timer to determine when the timer has reached 1ms */
-   while (i < count)
+   /*while (i < count)
    {
       while ((TIFR1 & 0x02) != 0x02);
 	
 	   /* Clear the interrupt flag by WRITING a ONE to the bit */
-	   TIFR1 |= _BV(OCF1A);
-	   i++;
-   } /* while */
-   TCCR1B &= ~_BV (CS11);  //  disable prescalar, no Clock
-   return;
-}  /* mTimer */
+	   //TIFR1 |= _BV(OCF1A);
+	   //i++;
+ //  } /* while */
+   //TCCR1B &= ~_BV (CS11);  //  disable prescalar, no Clock
+   //return;
+//}*/  /* mTimer */
 
 
 
-int main(int argc,char*argv[])
+/*int main(int argc,char*argv[])
 {
 	unsigned char i;
 
@@ -101,4 +101,4 @@ int main(int argc,char*argv[])
 
    return(0);
 
-}
+}/*
