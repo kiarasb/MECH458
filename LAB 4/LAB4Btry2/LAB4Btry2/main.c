@@ -6,7 +6,9 @@
 	Name 1:	Mckinlay, Samantha	            Student ID: V00954147
 	Name 2:	Berezowska, Kiara				Student ID: V00937549
 	
-	Description: 
+	Description: Program for running a simple brushed DC motor. Motor can operate in both CW and CCW at different speeds.
+	Direction change is controlled by a switch and a potentiometer circuit has been implemented for the speed. 
+	There is also a kill switch programmed to remove any signal that will cause the motor to move, when pressed. 
 */
 
 #include <avr/io.h>
@@ -96,7 +98,6 @@ int main(void)
 // change direction
 ISR(INT3_vect){
 	mTimer(20); //debounce
-	//ADCSRA |= _BV(ADSC); //start bit - start conversion?
 	int prev = PORTB;
 	//brake DC motor to Vcc; need to set INA (PB3), INB(PB4), DIAGA/ENA(PB5), and DIAGB/ENB(PB6) to high
 	PORTB = brake; //set INA (PB3),INB(PB4),DIAGA/ENA(PB5),and DIAGB/ENB(PB6) to high
@@ -123,7 +124,6 @@ ISR(INT2_vect)
 	while(1){
 		//killing program
 	}
-	//disable interrupts;
 }
 // the interrupt will be trigured if the ADC is done ========================
 ISR(ADC_vect)
