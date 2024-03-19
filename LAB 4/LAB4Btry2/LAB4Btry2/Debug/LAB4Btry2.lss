@@ -731,8 +731,8 @@ void LCDGotoXY(uint8_t x,uint8_t y)
  378:	08 95       	ret
 
 0000037a <__vector_29>:
+		//killing program
 	}
-	//disable interrupts;
 }
 // the interrupt will be trigured if the ADC is done ========================
 ISR(ADC_vect)
@@ -872,7 +872,6 @@ ISR(INT3_vect){
  418:	84 e1       	ldi	r24, 0x14	; 20
  41a:	90 e0       	ldi	r25, 0x00	; 0
  41c:	c9 df       	rcall	.-110    	; 0x3b0 <mTimer>
-	//ADCSRA |= _BV(ADSC); //start bit - start conversion?
 	int prev = PORTB;
  41e:	c5 b1       	in	r28, 0x05	; 5
 	//brake DC motor to Vcc; need to set INA (PB3), INB(PB4), DIAGA/ENA(PB5), and DIAGB/ENB(PB6) to high
