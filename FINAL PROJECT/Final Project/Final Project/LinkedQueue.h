@@ -4,10 +4,7 @@
 
 
 typedef struct Part{
-	int ADC_valmax;
-	int ADC_valmin;
-	int orientVect[4];
-	int line;
+	int cur_pos;
 }Part;
 
 typedef struct link{
