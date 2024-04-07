@@ -27,7 +27,7 @@ volatile unsigned int lowest; //global variable for lowest ADC value from RL sen
 volatile unsigned int ADC_high;
 volatile unsigned int ADC_low;
 volatile unsigned int ADC_result;
-volatile unsigned int ADC_result_flag;
+volatile unsigned int ADC_result_flag=0;
 volatile unsigned int prev;
 volatile unsigned int num_belt= 0; //number of parts left on belt
 int sorted[4] = {0, 0, 0, 0};
@@ -95,7 +95,9 @@ int main(void){
 	EICRA |= (_BV(ISC21)); // falling edge interrupt
 	EIMSK |= (_BV(INT3)); // enable INT3 (RIGHT button - PAUSE SYSTEM)
 	EICRA |= (_BV(ISC31) | _BV(ISC30)); //rising edge interrupt
-	EIMSK |= (_BV(INT1)); // enable INT1 (EX Sensor)
+	EIMSK |= (_BV(INT0)); // enable INT1 (EX Sensor)
+	EICRA |= (_BV(ISC01)); //falling edge interrupt
+	EIMSK |= (_BV(INT1)); // enable INT1 (OR Sensor)
 	EICRA |= (_BV(ISC11)); //falling edge interrupt
 	EIMSK |= (_BV(INT4)); // enable INT4 (OR Sensor)
 	EICRB |= (_BV(ISC41) | _BV(ISC40)); // rising edge interrupt
@@ -163,11 +165,13 @@ int main(void){
 	goto POLLING_STAGE;
 
 	REFLECTIVE_STAGE:
-	lowest = 1023;
-	initLink(&newLink);
-	ADCSRA |= _BV(ADSC); //starts conversion
-	//Reset the state variable
-	STATE = 0;
+	STATE = 0; //Reset the state variable
+	if(ADC_result_flag==0){
+		ADC_result_flag=1;
+		lowest = 1023;
+		initLink(&newLink);
+		ADCSRA |= _BV(ADSC); //starts conversion
+	}
 	goto POLLING_STAGE;
 	
 	BUCKET_STAGE:
@@ -177,6 +181,8 @@ int main(void){
 	nxt = rtnLink->p.cur_pos;
 	sorted[rtnLink->p.cur_pos]++;
 	int diff = step_pos-nxt;
+	PORTB = brake; // stop belt (not sure if this is a good place)
+	mTimer(10000);//delay stepper so it doens't move too soon
 	if(diff == 1|| diff==-3){
 		CW(50);
 		mTimer(10000); 
@@ -192,13 +198,12 @@ int main(void){
 			mTimer(10000);
 		} 
 	}else if(diff == 0){
-		//stay in the same position
+		mTimer(10000); ////stay in the same position and wait so that the part has time to drop before next is dequeued
 	}
 	step_pos = rtnLink->p.cur_pos;
 	PORTB=DC_CCW; //start belt
-	//Reset the state variable
 	free(rtnLink);
-	STATE = 0;
+	STATE = 0;//Reset the state variable
 	goto POLLING_STAGE;
 	
 	PAUSE_STAGE:
@@ -242,17 +247,27 @@ int main(void){
 
 } //end main
 
-ISR(INT4_vect){ //RL sensor -> ADC
-	STATE = 2;
-} //end ISR
-
-ISR(INT1_vect){ //EX sensor -> Bucket stage
+ISR(INT0_vect){ //EX sensor -> Bucket stage (FIRST PRIORITY)
 	if(isEmpty(&head)==1){
 		STATE = 0;
-	}else if(isEmpty(&head)==0){
-		PORTB = brake; // stop belt
+		}else if(isEmpty(&head)==0){
 		STATE = 3;
 	}
+} //end ISR*/
+
+ISR(INT1_vect){ //OR sensor --> signals end of the part
+	if(ADC_result_flag){
+		ADC_result_flag=0;
+		enqueue(&head,&tail,&newLink);
+		num_belt++;
+	}
+
+} //end ISR*/
+
+ISR(INT2_vect){ //rampdown
+	mTimer(20000); //debounce
+	stopTimer(); //call timer function to start rampdown count
+	STATE = 0; // go to polling state
 } //end ISR*/
 
 ISR(INT3_vect){ //pause
@@ -262,11 +277,10 @@ ISR(INT3_vect){ //pause
 	mTimer(20000); //debounce
 } //end ISR
 
-ISR(INT2_vect){ //rampdown
-	mTimer(20000); //debounce
-	stopTimer(); //call timer function to start rampdown count
-	STATE = 0; // go to polling state
-} //end ISR*/
+ISR(INT4_vect){ //OR sensor --> signals start of part
+	STATE = 2;
+} //end ISR
+
 	
 ISR(TIMER3_COMPA_vect){
 	LCDClear();
@@ -290,29 +304,21 @@ ISR(ADC_vect){
 			//LCDWriteStringXY(0,0,"ALUMINUM");
 			LCDWriteIntXY(0,1,lowest,4);
 			newLink->p.cur_pos = 3; //alu
-			enqueue(&head,&tail,&newLink);
-			num_belt++;
 		}else if(650>lowest){
 			LCDClear();
 			//LCDWriteStringXY(0,0,"STEEL");
 			LCDWriteIntXY(0,1,lowest,4);
 			newLink->p.cur_pos = 1; //stl
-			enqueue(&head,&tail,&newLink);
-			num_belt++;
 		}else if(930>lowest){
 				LCDClear();
 				//LCDWriteStringXY(0,0,"WHITE");
 				LCDWriteIntXY(0,1,lowest,4);
 				newLink->p.cur_pos = 2; //wht
-				enqueue(&head,&tail,&newLink);
-				num_belt++;
 		}else if(1024>lowest){
 			LCDClear();
 			//LCDWriteStringXY(0,0,"BLACK");
 			LCDWriteIntXY(0,1,lowest,4);
 			newLink->p.cur_pos = 0; //blk
-			enqueue(&head,&tail,&newLink);
-			num_belt++;
 		}
 	}// end if/else
 } //end ISR
@@ -414,8 +420,4 @@ void CCW(int NumSteps ){
 	}
 	cur_step_dir =1;
 } //end CCW
-
-
-
-
 
